@@ -8,14 +8,17 @@ class Node:
         self.color = None
 
 class RBT():
-    def __init__(self):
+    def __init__ (self):
         self.root = None
         self.nil = Node(None)
-        self.nil.color = 'black'
+        self.nil.color = 'B'
         self.root = self.nil
-        self.total = 0
+        self.totalCount = 0
+        self.insertCount = 0
+        self.deleteCount = 0
+        self.missCount = 0
 
-    def search(self,tree,v):
+    def search (self, tree, v):
         if tree == self.nil:
             return None
         if v == tree.val:
@@ -26,12 +29,12 @@ class RBT():
             return self.search(tree.right, v)
         return None
 
-    def tree_minimum(self, tree):
+    def tree_minimum (self, tree):
         while tree.left != self.nil:
             tree = tree.left
         return tree
 
-    def rotate_left(self,tree,x):
+    def rotate_left (self, tree, x):
         y = x.right
         x.right = y.left
         if y.left != tree.nil:
@@ -46,7 +49,7 @@ class RBT():
         y.left = x
         x.parent = y
 
-    def rotate_right(self,tree,x):
+    def rotate_right (self, tree, x):
         y = x.left
         x.left = y.right
         if y.right != tree.nil:
@@ -61,7 +64,7 @@ class RBT():
         y.right = x
         x.parent = y
 
-    def rb_insert(self,tree,z):
+    def rb_insert (self, tree, z):
         y = tree.nil
         x = tree.root
         while x != tree.nil:
@@ -79,43 +82,44 @@ class RBT():
             y.right = z
         z.left = tree.nil
         z.right = tree.nil
-        z.color = 'red'
+        z.color = 'R'
         self.rb_insert_fixup(tree, z)
-        self.total = self.total + 1
+        self.totalCount = self.totalCount + 1
+        self.insertCount = self.insertCount + 1
 
-    def rb_insert_fixup(self,tree,z):
-        while z.parent.color == 'red':
+    def rb_insert_fixup (self, tree, z):
+        while z.parent.color == 'R':
             if z.parent == z.parent.parent.left:
                 y = z.parent.parent.right
-                if y.color == 'red':
-                    z.parent.color = 'black'
-                    y.color = 'black'
-                    z.parent.parent.color = 'red'
+                if y.color == 'R':
+                    z.parent.color = 'B'
+                    y.color = 'B'
+                    z.parent.parent.color = 'R'
                     z = z.parent.parent
                 else:
                     if z == z.parent.right:
                         z = z.parent
                         self.rotate_left(tree, z)
-                    z.parent.color = 'black'
-                    z.parent.parent.color = 'red'
+                    z.parent.color = 'B'
+                    z.parent.parent.color = 'R'
                     self.rotate_right(tree, z.parent.parent)
             else:
                 y = z.parent.parent.left
-                if y.color == 'red':
-                    z.parent.color = 'black'
-                    y.color = 'black'
-                    z.parent.parent.color = 'red'
+                if y.color == 'R':
+                    z.parent.color = 'B'
+                    y.color = 'B'
+                    z.parent.parent.color = 'R'
                     z = z.parent.parent
                 else:
                     if z == z.parent.left:
                         z = z.parent
                         self.rotate_right(tree, z)
-                    z.parent.color = 'black'
-                    z.parent.parent.color = 'red'
+                    z.parent.color = 'B'
+                    z.parent.parent.color = 'R'
                     self.rotate_left(tree, z.parent.parent)
-        tree.root.color = 'black'
+        tree.root.color = 'B'
 
-    def rb_transplant(self,tree,u,v):
+    def rb_transplant (self, tree, u, v):
         if u.parent == tree.nil:
             tree.root = v
         elif u == u.parent.left:
@@ -124,8 +128,9 @@ class RBT():
             u.parent.right = v
         v.parent = u.parent
 
-    def rb_delete(self,tree,z):
+    def rb_delete (self, tree, z):
         if z == None:
+            self.missCount = self.missCount + 1
             return
         y = z
         y_orig_color = y.color
@@ -149,93 +154,103 @@ class RBT():
             y.left = z.left
             y.left.parent = y
             y.color = z.color
-        if y_orig_color == 'black':
+        if y_orig_color == 'B':
             self.rb_delete_fixup(tree, x)
-        self.total = self.total - 1
+        self.totalCount = self.totalCount - 1
+        self.deleteCount = self.deleteCount + 1
 
-    def rb_delete_fixup(self,tree,x):
-        while x != tree.root and x.color == 'black':
+    def rb_delete_fixup (self, tree, x):
+        while x != tree.root and x.color == 'B':
             if x == x.parent.left:
                 w = x.parent.right
-                if w.color == 'red':
-                    w.color = 'black'
-                    x.parent.color = 'red'
+                if w.color == 'R':
+                    w.color = 'B'
+                    x.parent.color = 'R'
                     self.rotate_left(tree, x.parent)
                     w = x.parent.right
-                if w.left.color == 'black' and w.right.color == 'black':
-                    w.color = 'red'
+                if w.left.color == 'B' and w.right.color == 'B':
+                    w.color = 'R'
                     x = x.parent
                 else:
-                    if w.right.color == 'black':
-                        w.left.color = 'black'
-                        w.color = 'red'
+                    if w.right.color == 'B':
+                        w.left.color = 'B'
+                        w.color = 'R'
                         self.rotate_right(tree, w)
                         w = x.parent.right
                     w.color = x.parent.color
-                    x.parent.color = 'black'
-                    w.right.color = 'black'
+                    x.parent.color = 'B'
+                    w.right.color = 'B'
                     self.rotate_left(tree, x.parent)
                     x = tree.root
             else:
                 w = x.parent.left
-                if w.color == 'red':
-                    w.color = 'black'
-                    x.parent.color = 'red'
+                if w.color == 'R':
+                    w.color = 'B'
+                    x.parent.color = 'R'
                     self.rotate_right(tree, x.parent)
                     w = x.parent.left
-                if w.right.color == 'black' and w.left.color == 'black':
-                    w.color = 'red'
+                if w.right.color == 'B' and w.left.color == 'B':
+                    w.color = 'R'
                     x = x.parent
                 else:
-                    if w.left.color == 'black':
-                        w.right.color = 'black'
-                        w.color = 'red'
+                    if w.left.color == 'B':
+                        w.right.color = 'B'
+                        w.color = 'R'
                         self.rotate_left(tree, w)
                         w = x.parent.left
                     w.color = x.parent.color
-                    x.parent.color = 'black'
-                    w.left.color = 'black'
+                    x.parent.color = 'B'
+                    w.left.color = 'B'
                     self.rotate_right(tree, x.parent)
                     x = tree.root
-        x.color = 'black'
+        x.color = 'B'
 
-    def print(self,tree,level):
+    def print (self, tree, level):
         if tree.right != None:
-            self.print(tree.right,level + 1)
+            self.print(tree.right, level + 1)
         for i in range(level):
             print('   ', end='')
         print(tree.val, tree.color)
         if tree.left != None:
             self.print(tree.left, level + 1)
 
-    def inorder(self,tree):
+    def inorder (self, tree):
         if tree == self.nil:
             return
         else:
             self.inorder(tree.left)
-            print(tree.val, end=' ')
+            print(str(tree.val) + tree.color, end=' ')
             self.inorder(tree.right)
 
-    def get_total(self):
-        return self.total
+    def get_total (self):
+        return self.totalCount
 
-    def nb(self,tree):
+    def get_insert (self):
+        return self.insertCount
+
+    def get_delete (self):
+        return self.deleteCount
+
+    def get_miss (self):
+        return self.missCount
+
+    def nb (self, tree):
         if tree == self.nil:
             return 0
         nb = 0
-        if tree.color == 'black':
+        if tree.color == 'B':
             nb = 1
         return nb + self.nb(tree.left) + self.nb(tree.right)
 
-    def bh(self,tree):
+    def bh (self, tree):
         if tree == self.nil:
             return 0
         bh = 0
-        if tree.color == 'black':
+        if tree.color == 'B':
             bh = 1
         return bh + self.bh(tree.left)
 
-def main():
+def main ():
     rbt = RBT()
     file = open('input.txt', 'r')
     for line in file:
@@ -246,6 +261,9 @@ def main():
             rbt.rb_delete(rbt, rbt.search(rbt.root, -value))
         else:
             print('total = ' + str(rbt.get_total()))
+            print('insert = ' + str(rbt.get_insert()))
+            print('delete = ' + str(rbt.get_delete()))
+            print('miss = ' + str(rbt.get_miss()))
             print('nb = ' + str(rbt.nb(rbt.root)))
             print('bh = ' + str(rbt.bh(rbt.root)))
             rbt.inorder(rbt.root)
