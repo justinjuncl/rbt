@@ -219,7 +219,7 @@ class RBT():
             return
         else:
             self.inorder(tree.left)
-            print(str(tree.val) + tree.color, end=' ')
+            print(str(tree.val) + ' ' + tree.color)
             self.inorder(tree.right)
 
     def get_total (self):
@@ -260,9 +260,10 @@ def main ():
         elif value < 0:
             rbt.rb_delete(rbt, rbt.search(rbt.root, -value))
         else:
+            print('filename = ' + file.name)
             print('total = ' + str(rbt.get_total()))
             print('insert = ' + str(rbt.get_insert()))
-            print('delete = ' + str(rbt.get_delete()))
+            print('deleted = ' + str(rbt.get_delete()))
             print('miss = ' + str(rbt.get_miss()))
             print('nb = ' + str(rbt.nb(rbt.root)))
             print('bh = ' + str(rbt.bh(rbt.root)))
