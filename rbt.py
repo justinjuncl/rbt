@@ -1,3 +1,4 @@
+import os
 
 class Node:
     def __init__(self, val):
@@ -250,9 +251,9 @@ class RBT():
             bh = 1
         return bh + self.bh(tree.left)
 
-def main ():
+def process (filename):
     rbt = RBT()
-    file = open('input.txt', 'r')
+    file = open('./input/' + filename, 'r')
     for line in file:
         value = int(line)
         if value > 0:
@@ -260,7 +261,7 @@ def main ():
         elif value < 0:
             rbt.rb_delete(rbt, rbt.search(rbt.root, -value))
         else:
-            print('filename = ' + file.name)
+            print('filename = ' + filename)
             print('total = ' + str(rbt.get_total()))
             print('insert = ' + str(rbt.get_insert()))
             print('deleted = ' + str(rbt.get_delete()))
@@ -270,5 +271,10 @@ def main ():
             rbt.inorder(rbt.root)
             print()
     file.close()
+
+def main ():
+    filenames = os.listdir('./input/')
+    for filename in filenames:
+        process(filename)
 
 main()
