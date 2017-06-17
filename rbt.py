@@ -18,22 +18,45 @@ class RBT():
         self.insertCount = 0
         self.deleteCount = 0
         self.missCount = 0
+        self.pre = self.nil
+        self.suc = self.nil
 
     def search (self, tree, v):
         if tree == self.nil:
-            return None
+            return self.nil
         if v == tree.val:
             return tree
         elif v < tree.val:
             return self.search(tree.left, v)
         else:
             return self.search(tree.right, v)
-        return None
+        return self.nil
 
     def tree_minimum (self, tree):
         while tree.left != self.nil:
             tree = tree.left
         return tree
+
+    def tree_maximum (self, tree):
+        while tree.right != self.nil:
+            tree = tree.right
+        return tree
+
+    def findPreSuc (self, tree, v):
+        if tree == self.nil:
+            return
+        if v == tree.val:
+            if tree.left != self.nil:
+                self.pre = self.tree_maximum(tree.left)
+            if tree.right != self.nil:
+                self.suc = self.tree_minimum(tree.right)
+            return
+        if v < tree.val:
+            self.suc = tree
+            self.findPreSuc(tree.left, v)
+        else:
+            self.pre = tree
+            self.findPreSuc(tree.right, v)
 
     def rotate_left (self, tree, x):
         y = x.right
@@ -130,7 +153,7 @@ class RBT():
         v.parent = u.parent
 
     def rb_delete (self, tree, z):
-        if z == None:
+        if z == self.nil:
             self.missCount = self.missCount + 1
             return
         y = z
@@ -252,29 +275,37 @@ class RBT():
         return bh + self.bh(tree.left)
 
 def process (filename):
-    rbt = RBT()
-    file = open('./input/' + filename, 'r')
+    file = open(filename, 'r')
     for line in file:
         value = int(line)
         if value > 0:
             rbt.rb_insert(rbt, Node(value))
         elif value < 0:
             rbt.rb_delete(rbt, rbt.search(rbt.root, -value))
-        else:
-            print('filename = ' + filename)
-            print('total = ' + str(rbt.get_total()))
-            print('insert = ' + str(rbt.get_insert()))
-            print('deleted = ' + str(rbt.get_delete()))
-            print('miss = ' + str(rbt.get_miss()))
-            print('nb = ' + str(rbt.nb(rbt.root)))
-            print('bh = ' + str(rbt.bh(rbt.root)))
-            rbt.inorder(rbt.root)
-            print()
     file.close()
 
-def main ():
-    filenames = os.listdir('./input/')
-    for filename in filenames:
-        process(filename)
+def search (fileRead, fileWrite):
+    fileR = open(fileRead, 'r')
+    fileW = open(fileWrite, 'w')
+    for line in fileR:
+        value = int(line)
+        if value > 0:
+            rbt.pre = rbt.nil
+            rbt.suc = rbt.nil
+            rbt.findPreSuc(rbt.root, value)
+            cur = rbt.search(rbt.root, value)
+            fileW.write('NIL' if rbt.pre is rbt.nil else str(rbt.pre.val))
+            fileW.write(' ')
+            fileW.write('NIL' if cur is rbt.nil else str(cur.val))
+            fileW.write(' ')
+            fileW.write('NIL' if rbt.suc is rbt.nil else str(rbt.suc.val))
+            fileW.write('\n')
+    fileR.close()
+    fileW.close()
 
+def main ():
+    process('input.txt')
+    search('search.txt', 'output.txt')
+
+rbt = RBT()
 main()
